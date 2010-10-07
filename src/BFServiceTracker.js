@@ -62,7 +62,7 @@ BFServiceTracker.prototype = {
         if (!this._prefs)    {
             this._prefs = Components.classes["@mozilla.org/preferences-service;1"]
                          .getService(Components.interfaces.nsIPrefService)
-                         .getBranch("extensions.bonjourfoxy.");
+                         .getBranch("extensions.bonjourfriends@momo.");
         }
         return this._prefs;
     },
