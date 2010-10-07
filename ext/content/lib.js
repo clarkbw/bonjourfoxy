@@ -25,6 +25,7 @@ bonjourfoxy.lib = {
          }
          return this._DNSSDService;
     },
+    selfService: null,
     _windowMediator: null,
     windowMediator: function() {
         if (!this._windowMediator)  {
@@ -88,6 +89,43 @@ bonjourfoxy.lib = {
         bonjourfoxy.lib.userPrefs()
             .QueryInterface(Components.interfaces.nsIPrefBranch2)
             .removeObserver("", fn);
+    },
+    registerService: function(name, service, domain, host, port, path, pathArgs) {
+        try {
+          var ALL_INTERFACES = 0;
+          var kvPairs = Components.classes["@mozilla.org/array;1"]
+                                  .createInstance(Components.interfaces.nsIMutableArray);
+
+          var kvPairPath = Components.classes["@mozilla.org/variant;1"]
+                                     .createInstance(Components.interfaces.nsIWritableVariant);
+          kvPairPath.setFromVariant(path);
+          kvPairs.appendElement(kvPairPath, 0);
+
+          for (var i in pathArgs) {
+            var kvPair = Components.classes["@mozilla.org/variant;1"]
+                                   .createInstance(Components.interfaces.nsIWritableVariant);
+            kvPair.setFromVariant(pathArgs[i]);
+            kvPairs.appendElement(kvPair, 0);
+          }
+
+          this.selfService = this.DNSSDService().register(ALL_INTERFACES, name,
+                                                            service, domain, host,
+                                                            port, kvPairs,
+                                                            function(svc, add, error, sName, rType, rDomain) {
+                                                              if (!error) {
+                                                                  bonjourfoxy.lib.log("registerService " + ["callback -", sName,
+                                                                                      (add ? "advertising in" : "removed from"),
+                                                                                      "registration domain", rDomain].join(" "));
+                                                              } else {
+                                                                  bonjourfoxy.lib.log("registerService call back fired - error #" + error);
+                                                              }
+                                                             });
+        } catch (e) {
+          this.log("registerService: error creating instance " + e);
+        }
+    },
+    unRegisterService: function() {
+      this.selfService.stop();
     },
     callInContext: function(fn) {
         var context = this;

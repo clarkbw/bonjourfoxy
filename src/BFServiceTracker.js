@@ -28,6 +28,7 @@ BFServiceTracker.prototype = {
         {label: "website", regtype: "_http._tcp"},
         {label: "wiki", regtype: "_http._tcp,_wiki"},
         {label: "printer", regtype: "_http._tcp,_printer"},
+        {label: "firefox", regtype: "_http._tcp,_firefox"},
     ],
     _browseDomains: Object(),
     _services: Object(),

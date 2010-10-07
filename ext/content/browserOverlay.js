@@ -2,6 +2,7 @@ bonjourfoxy.overlay = {
     initialize: function() {
         bonjourfoxy.lib.addUserPrefsObserver(bonjourfoxy.overlay);
         bonjourfoxy.lib.observerService().addObserver(bonjourfoxy.overlay, "BFServiceTracker_Change", false);
+        bonjourfoxy.lib.registerService("Bryan Clark", "_http._tcp,_firefox", "", "mozillamessaging.com", 80, "/", []);
         bonjourfoxy.overlay.displayStatusBarIcon();
         bonjourfoxy.overlay.setStatusBarIcon();
         bonjourfoxy.overlay.displayWelcome();
@@ -15,6 +16,7 @@ bonjourfoxy.overlay = {
     shutdown: function() {
         bonjourfoxy.lib.rmvUserPrefsObserver(bonjourfoxy.overlay);
         bonjourfoxy.lib.observerService().removeObserver(bonjourfoxy.overlay, "BFServiceTracker_Change");
+        bonjourfoxy.lib.unRegisterService();
     },
     setlabel: function(elid, label) {
         document.getElementById(elid).setAttribute('label', label);
