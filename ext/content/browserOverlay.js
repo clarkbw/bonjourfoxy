@@ -32,7 +32,7 @@ bonjourfoxy.overlay = {
     displayWelcome: function()  {
         var bfVer = bonjourfoxy.lib.version();
         if (bonjourfoxy.lib.userPrefs().getCharPref("rev") != bfVer)   {
-            bonjourfoxy.lib.openLink("chrome://bonjourfoxy/content/welcome.html", "window");
+            bonjourfoxy.lib.openLink("about:bonjourfoxy", "window");
             bonjourfoxy.lib.userPrefs().setCharPref("rev", bfVer);
         }
     },
