@@ -22,7 +22,7 @@ xpcom:
 
 dir: xpcom
 	@echo Creating extension folders
-	mkdir -p scratch && cp -r ext/* scratch
+	mkdir -p scratch/components && cp -r ext/* scratch
 	perl -pi -e "s/%%MINVER%%/$(MIN_VER)/g" scratch/install.rdf
 	perl -pi -e "s/%%MAXVER%%/$(MAX_VER)/g" scratch/install.rdf
 	perl -pi -e "s/%%VER%%/$(BF_VER)/g" scratch/install.rdf
