@@ -7,11 +7,11 @@
                    em:minVersion="%%MINVER%%"
                    em:maxVersion="%%MAXVER%%" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
-                   em:id="bonjourfoxy@bonjourfoxy.net"
+                   em:id="bonjourfriends@momo"
                    em:version="%%VER%%"
                    em:optionsURL="chrome://bonjourfoxy/content/options.xul"
-                   em:name="BonjourFoxy"
-                   em:description="Bonjour for Firefox"
+                   em:name="Bonjour Friends"
+                   em:description="Find your Friends using Firefox on the local network"
                    em:creator="Andrew Tunnell-Jones"
                    em:homepageURL="http://www.bonjourfoxy.net/">
     <em:targetApplication RDF:resource="rdf:#$f.z7d"/>

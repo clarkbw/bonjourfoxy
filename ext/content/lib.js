@@ -77,7 +77,7 @@ bonjourfoxy.lib = {
     userPrefs: function() {
         return Components.classes["@mozilla.org/preferences-service;1"]
                 .getService(Components.interfaces.nsIPrefService)
-                .getBranch("extensions.bonjourfoxy.");
+                .getBranch("extensions.bonjourfriends@momo.");
     },
     addUserPrefsObserver: function(fn) {
         bonjourfoxy.lib.userPrefs()
