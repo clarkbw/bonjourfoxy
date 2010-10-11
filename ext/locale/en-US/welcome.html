@@ -4,11 +4,26 @@
 <link rel="stylesheet" type="text/css" href="chrome://bonjourfoxy/content/welcome.css" />
 <script src="chrome://bonjourfoxy/content/namespace.js" type="text/javascript"></script>
 <script src="chrome://bonjourfoxy/content/lib.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/jquery-1.4.2.js" type="text/javascript"></script>
 <script src="chrome://bonjourfoxy/content/welcome.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#formSetName").submit(function() {
+      bonjourfoxy.welcome.setName();
+      return false;
+    });
+  });
+</script>
 </head>
 <body>
 <div class="main">
 <h1>You've just installed BonjourFoxy<span id="bfversion"></span></h1>
+<div>
+  <form id="formSetName">
+    <input type="text" id="name" value=""/> <input type="submit" id="btnSetName" value="Set Name"/>
+  </form>
+</div>
+<!--
 <p class="mt">Here's a few things you may want to configure...</p>
 <table>
 <tr>
@@ -45,6 +60,7 @@
 </table>
 <p class="mt">These settings and more can be set by going to the Extensions section of Add-ons (Tools menu), selecting BonjourFoxy and then <span id="settingsTxtNixMac">Preferences</span><span id="settingsTxtWin">Options</span>.</p>
 <p class="ft">For more on the extension head to <a href="http://www.bonjourfoxy.net/">http://www.bonjourfoxy.net/</a></p>
+-->
 </div>
 </body>
 </html>

@@ -1,4 +1,6 @@
 bonjourfoxy.lib = {
+    httpd : {},
+    dnsd: {},
     version: function() {
         var extensionid = bonjourfoxy.lib.userPrefs().getCharPref("extensionid");
         return Components.classes["@mozilla.org/extensions/manager;1"]
@@ -25,7 +27,14 @@ bonjourfoxy.lib = {
          }
          return this._DNSSDService;
     },
-    selfService: null,
+    _SelfService : null,
+    SelfService: function() {
+        if (!this._SelfService)  {
+            this._SelfService = new this.dnsd.bonjourSelfService(name);
+       }
+       return this._SelfService;
+    },
+    selfServer: null,
     _windowMediator: null,
     windowMediator: function() {
         if (!this._windowMediator)  {
@@ -90,42 +99,105 @@ bonjourfoxy.lib = {
             .QueryInterface(Components.interfaces.nsIPrefBranch2)
             .removeObserver("", fn);
     },
-    registerService: function(name, service, domain, host, port, path, pathArgs) {
-        try {
-          var ALL_INTERFACES = 0;
-          var kvPairs = Components.classes["@mozilla.org/array;1"]
-                                  .createInstance(Components.interfaces.nsIMutableArray);
-
-          var kvPairPath = Components.classes["@mozilla.org/variant;1"]
-                                     .createInstance(Components.interfaces.nsIWritableVariant);
-          kvPairPath.setFromVariant(path);
-          kvPairs.appendElement(kvPairPath, 0);
-
-          for (var i in pathArgs) {
-            var kvPair = Components.classes["@mozilla.org/variant;1"]
-                                   .createInstance(Components.interfaces.nsIWritableVariant);
-            kvPair.setFromVariant(pathArgs[i]);
-            kvPairs.appendElement(kvPair, 0);
-          }
-
-          this.selfService = this.DNSSDService().register(ALL_INTERFACES, name,
-                                                            service, domain, host,
-                                                            port, kvPairs,
-                                                            function(svc, add, error, sName, rType, rDomain) {
-                                                              if (!error) {
-                                                                  bonjourfoxy.lib.log("registerService " + ["callback -", sName,
-                                                                                      (add ? "advertising in" : "removed from"),
-                                                                                      "registration domain", rDomain].join(" "));
-                                                              } else {
-                                                                  bonjourfoxy.lib.log("registerService call back fired - error #" + error);
-                                                              }
-                                                             });
-        } catch (e) {
-          this.log("registerService: error creating instance " + e);
-        }
+    resetSelfService : function(name) {
+      try {
+        this.SelfService().getService().reset(name);
+      } catch (e) {
+        bonjourfoxy.lib.log("error reseting self service: " + e);
+      }
+    },
+    registerSelfService : function(name) {
+      var n = name || bonjourfoxy.lib.userPrefs().getCharPref("name");
+      this.SelfService().getService(n).start();
+      bonjourfoxy.lib.log("registeredSelfService : " + n);
+      this.startSelfServer();
     },
     unRegisterService: function() {
-      this.selfService.stop();
+      // Don't shutdown our service unless this is the last window closing
+      if (! bonjourfoxy.lib.windowMediator().getEnumerator('navigator:browser').hasMoreElements())
+        this.SelfService().getService().stop();
+    },
+    startSelfServer: function() {
+        try {
+          function DefaultHandler() {
+            this.handle = function(request, response) {
+              try {
+              var responseBody = "<html>" +
+                                 "<head>" +
+                                 "<script type='text/javascript' src='http://code.jquery.com/jquery-1.4.2.js'></script>\n" +
+                                 "<script type='text/javascript'>\n" +
+                                 "$(document).ready(function() { \n"+
+                                    "$('#sendMessage').submit(function() { \n" +
+                                      "$.ajax( { type : 'POST', url : '/message', processData : false, data : JSON.stringify({ 'title' : $('#title').val(), 'message' : $('#message').val() }) }); \n" +
+                                      "return false; \n" +
+                                    "}); \n" +
+                                 "}); \n" +
+                                 "</script>\n" +
+                                 "</head>" +
+                                 "<body>" +
+                                 "<h1>Hello There!</h1>" +
+                                 "<form id='sendMessage'>" +
+                                 "<div><label for='title'>Title: </label><input type='text' name='title' id='title'/></div>" +
+                                 "<div><label for='message'>Message: </label><input type='text' name='message' id='message'/></div>" +
+                                 "<div><input type='submit' value='Send'/></div>" +
+                                 "</form>" +
+                                 "</body></html>";
+              response.setStatusLine(request.httpVersion, 200, "OK");
+              response.setHeader("Content-Type", "text/html", false);
+              response.setHeader("Content-Length", responseBody.length.toString(),
+                                 false);
+              response.setHeader("Access-Control-Allow-Origin", "*", false);
+              response.bodyOutputStream.write(responseBody, responseBody.length);
+              } catch (e) {
+                Components.classes["@mozilla.org/consoleservice;1"]
+                          .getService(Components.interfaces.nsIConsoleService)
+                          .logStringMessage("request.body.error: " + e);
+              }
+            };
+          }
+          function MessageHandler() {
+            this.handle = function(request, response) {
+              try {
+              var readBody = request.readBody();
+              var body = JSON.parse(readBody);
+              //Components.classes["@mozilla.org/consoleservice;1"]
+              //          .getService(Components.interfaces.nsIConsoleService)
+              //          .logStringMessage("MessageHandler.request.body: " + body + "\n" + readBody);
+              bonjourfoxy.lib.alert(body.title, body.message);
+              var responseBody = "OK";
+              response.setStatusLine(request.httpVersion, 200, "OK");
+              response.setHeader("Content-Type", "text/html", false);
+              response.setHeader("Content-Length", responseBody.length.toString(),
+                                 false);
+              response.setHeader("Access-Control-Allow-Origin", "*", false);
+              response.bodyOutputStream.write(responseBody, responseBody.length);
+              } catch (e) {
+                Components.classes["@mozilla.org/consoleservice;1"]
+                          .getService(Components.interfaces.nsIConsoleService)
+                          .logStringMessage("MessageHandler.error: " + e + "\n" + readBody);
+              }
+            };
+          }
+
+          var Server = function Server(port, host) {
+            var server = new bonjourfoxy.lib.httpd.nsHttpServer();
+            server.start(port, host);
+            var path = Components.classes["@mozilla.org/file/directory_service;1"]
+                                    .getService(Components.interfaces.nsIProperties)
+                                    .get("Desk", Components.interfaces.nsILocalFile);
+            server.registerDirectory("/", path);
+            server.registerPathHandler("/", new DefaultHandler());
+            server.registerPathHandler("/message", new MessageHandler());
+            return server;
+          };
+
+          if (this.selfServer == null) {
+            this.selfServer = Server(8777, "macmac-2.local");
+          }
+
+        } catch (e) {
+          this.log("registerService: error creating web service " + e);
+        }
     },
     callInContext: function(fn) {
         var context = this;
@@ -176,3 +248,19 @@ bonjourfoxy.lib = {
         return this._platform;
     }
 };
+
+try {
+  Components.utils.import("resource://bonjourfoxy/modules/httpd.js", bonjourfoxy.lib.httpd);
+} catch (e) {
+  Components.classes["@mozilla.org/consoleservice;1"]
+            .getService(Components.interfaces.nsIConsoleService)
+            .logStringMessage("Error importing HTTPD: " + e);
+}
+
+try {
+  Components.utils.import("resource://bonjourfoxy/modules/self-service.js", bonjourfoxy.lib.dnsd);
+} catch (e) {
+  Components.classes["@mozilla.org/consoleservice;1"]
+            .getService(Components.interfaces.nsIConsoleService)
+            .logStringMessage("Error importing SelfService: " + e);
+}

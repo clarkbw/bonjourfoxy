@@ -1,5 +1,5 @@
 content	bonjourfoxy	content/
-resource	bonjourfoxy	modules/
+resource	bonjourfoxy	./
 locale	bonjourfoxy	en-US	locale/en-US/
 locale	bonjourfoxy	de-DE	locale/de-DE/
 skin	bonjourfoxy	classic/1.0	skin/

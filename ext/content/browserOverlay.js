@@ -2,7 +2,7 @@ bonjourfoxy.overlay = {
     initialize: function() {
         bonjourfoxy.lib.addUserPrefsObserver(bonjourfoxy.overlay);
         bonjourfoxy.lib.observerService().addObserver(bonjourfoxy.overlay, "BFServiceTracker_Change", false);
-        bonjourfoxy.lib.registerService("Bryan Clark", "_http._tcp,_firefox", "", "mozillamessaging.com", 80, "/", []);
+        bonjourfoxy.lib.registerSelfService();
         bonjourfoxy.overlay.displayStatusBarIcon();
         bonjourfoxy.overlay.setStatusBarIcon();
         bonjourfoxy.overlay.displayWelcome();

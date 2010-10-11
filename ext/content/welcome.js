@@ -1,21 +1,24 @@
 bonjourfoxy.welcome = {
     initialize: function() {
         var getEl = bonjourfoxy.welcome.getElement;
-        switch(bonjourfoxy.lib.platform()) {
-            case 'mac':
-                getEl('toolbarImageWinNix').style.display = "none";
-                getEl('settingsTxtWin').style.display = "none";
-            break;
-            case 'win':
-                getEl('toolbarImageMac').style.display = "none";
-                getEl('settingsTxtNixMac').style.display = "none";
-            break;
-            case 'nix':
-                getEl('toolbarImageMac').style.display = "none";
-                getEl('settingsTxtWin').style.display = "none";
-            break;
-        }
+        //switch(bonjourfoxy.lib.platform()) {
+        //    case 'mac':
+        //        getEl('toolbarImageWinNix').style.display = "none";
+        //        getEl('settingsTxtWin').style.display = "none";
+        //    break;
+        //    case 'win':
+        //        getEl('toolbarImageMac').style.display = "none";
+        //        getEl('settingsTxtNixMac').style.display = "none";
+        //    break;
+        //    case 'nix':
+        //        getEl('toolbarImageMac').style.display = "none";
+        //        getEl('settingsTxtWin').style.display = "none";
+        //    break;
+        //}
         getEl("bfversion").innerHTML = " " + bonjourfoxy.lib.version();
+        getEl("name").value = bonjourfoxy.lib.userPrefs().getCharPref("name");
+        getEl("btnSetName").addEventListener("click", bonjourfoxy.welcome.setName, false);
+        return;
         getEl("btnAlertExample").addEventListener("click", bonjourfoxy.welcome.exampleAlert, false);
         getEl("btnCustToolbar").addEventListener("click", bonjourfoxy.welcome.custToolbar, false);
         getEl("btnTbExample").addEventListener("click", bonjourfoxy.welcome.toggleSidebar, false);
@@ -57,6 +60,17 @@ bonjourfoxy.welcome = {
             bonjourfoxy.welcome._elements[element] = document.getElementById(element);
         }
         return bonjourfoxy.welcome._elements[element];
+    },
+    setName : function () {
+      try {
+        var name = bonjourfoxy.welcome.getElement("name").value;
+        bonjourfoxy.lib.log("setting name: " + name);
+        bonjourfoxy.lib.userPrefs().setCharPref("name", name);
+        bonjourfoxy.lib.resetSelfService(name);
+        bonjourfoxy.lib.log("self service reset: " + name);
+      } catch (e) {
+        bonjourfoxy.lib.log("error setting name: " + e);
+      }
     },
     custToolbar: function()    {
         bonjourfoxy.lib.windowMediator().getMostRecentWindow("navigator:browser").BrowserCustomizeToolbar();
