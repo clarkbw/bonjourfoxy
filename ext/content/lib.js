@@ -135,7 +135,7 @@ bonjourfoxy.lib = {
                                  "</script>\n" +
                                  "</head>" +
                                  "<body>" +
-                                 "<h1>Hello There!</h1>" +
+                                 "<h1>The Firefox of " + bonjourfoxy.lib.userPrefs().getCharPref("name") + "</h1>" +
                                  "<form id='sendMessage'>" +
                                  "<div><label for='title'>Title: </label><input type='text' name='title' id='title'/></div>" +
                                  "<div><label for='message'>Message: </label><input type='text' name='message' id='message'/></div>" +
