@@ -54,6 +54,8 @@ var bonjourSelfService = function bonjourSelfService(name) {
                                 .createInstance(Components.interfaces.nsIMutableArray);
   this._interfaces = ALL_INTERFACES;
 
+  this._serviceHostName = null;
+
   this._instance = null;
   this._DNSSDService = null;
   this._log = null;
@@ -75,10 +77,16 @@ bonjourSelfService.prototype =  {
   setName: function (name) {
     this._name = name;
   },
+  get serviceHostName() {
+    return this._serviceHostName;
+  },
+  set serviceHostName(hostname) {
+    this._serviceHostName = hostname;
+  },
   setPathArgs: function(pathArgs) {
     this._pathArgs = pathArgs;
   },
-  start : function () {
+  start : function (callBack) {
     try {
       if (this.instance == null) {
 
@@ -90,7 +98,7 @@ bonjourSelfService.prototype =  {
           this._mozPathArgs.appendElement(kvPair, 0);
         }
 
-        this.instance = this._register();
+        this.instance = this._register(callBack);
       }
 
     } catch (e) {
@@ -122,17 +130,27 @@ bonjourSelfService.prototype =  {
      }
      return this._DNSSDService;
   },
-  _register: function() {
+  resolve: function(sName, rType, callBack) {
+    this.DNSSDService.resolve(ALL_INTERFACES, sName, rType, "local.",
+                              function(svc, ifIndex, err, fqdn, hostname, port, kvPairsA) {
+                                var h = hostname.replace(/\.$/, ''); // strip the trailing period
+                                gGlobalObject.serviceHostName = h;
+                                callBack(h);
+                              }
+    );
+  },
+  _register: function(callBack) {
     return this.DNSSDService.register(ALL_INTERFACES, this._name, this._service,
                                       this._domain, this._host, this._port,
                                       this._mozPathArgs,
                                       function(svc, add, error, sName, rType, rDomain) {
                                         if (!error) {
-                                            selfService.log("registerService " + ["callback -", sName,
+                                            gGlobalObject.log("registerService " + ["callback -", sName,
                                                                 (add ? "advertising in" : "removed from"),
                                                                 "registration domain", rDomain].join(" "));
+                                            gGlobalObject.resolve(sName, rType, callBack)
                                         } else {
-                                            selfService.log("registerService call back fired - error #" + error);
+                                            gGlobalObject.log("registerService call back fired - error #" + error);
                                         }
                                        });
   },
@@ -141,7 +159,7 @@ bonjourSelfService.prototype =  {
       this._log = Components.classes["@mozilla.org/consoleservice;1"]
                             .getService(Components.interfaces.nsIConsoleService);
     }
-    this._log.logStringMessage(msg);
+    this._log.logStringMessage("[bonjourSelfService] " + msg);
   },
   mozVar: function(v) {
     var mv = this._mozVar();

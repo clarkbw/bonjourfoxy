@@ -828,6 +828,10 @@ const HOST_REGEX =
              "|" +
                // IPv4 address 
                "\\d+\\.\\d+\\.\\d+\\.\\d+" +
+             "|" +
+               // .local hostname addresses
+               "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*" +
+               "local" +
              ")$",
              "i");
 

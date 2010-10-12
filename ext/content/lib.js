@@ -108,16 +108,15 @@ bonjourfoxy.lib = {
     },
     registerSelfService : function(name) {
       var n = name || bonjourfoxy.lib.userPrefs().getCharPref("user.name");
-      this.SelfService().getService(n).start();
+      this.SelfService().getService(n).start(this.startSelfServer);
       bonjourfoxy.lib.log("registeredSelfService : " + n);
-      this.startSelfServer();
     },
     unRegisterService: function() {
       // Don't shutdown our service unless this is the last window closing
       if (! bonjourfoxy.lib.windowMediator().getEnumerator('navigator:browser').hasMoreElements())
         this.SelfService().getService().stop();
     },
-    startSelfServer: function() {
+    startSelfServer: function(hostname) {
         try {
           function DefaultHandler() {
             this.handle = function(request, response) {
@@ -128,7 +127,7 @@ bonjourfoxy.lib = {
                                  "<script type='text/javascript'>\n" +
                                  "$(document).ready(function() { \n"+
                                     "$('#sendMessage').submit(function() { \n" +
-                                      "$.ajax( { type : 'POST', url : '/message', processData : false, data : JSON.stringify({ 'sender' : $('#sender').val(), 'message' : $('#message').val() }) , success : function() {  $('#message').val(''); alert('Message Sent!'); } }); \n" +
+                                      "$.ajax( { type : 'POST', url : '/message', processData : false, data : JSON.stringify({ 'sender' : $('#sender').val(), 'message' : $('#message').val() }) , success : function() {  $('#message').val('').focus(); alert('Message Sent!'); } }); \n" +
                                       "return false; \n" +
                                     "}); \n" +
                                  "}); \n" +
@@ -198,11 +197,11 @@ bonjourfoxy.lib = {
           };
 
           if (this.selfServer == null) {
-            this.selfServer = Server(8777, "macmac-2.local");
+            this.selfServer = Server(8777, hostname || this.SelfService().serviceHostName);
           }
 
         } catch (e) {
-          this.log("registerService: error creating web service " + e);
+          bonjourfoxy.lib.log("registerService: error creating web service " + e);
         }
     },
     callInContext: function(fn) {
