@@ -75,8 +75,8 @@ bonjourfoxy.lib = {
         }
         return this._alertsService;
     },
-    alert: function(title, body) {
-        this.alertsService().showAlertNotification(null, title, body, null, null, null);
+    alert: function(title, body, img) {
+        this.alertsService().showAlertNotification(img, title, body, null, null, null);
     },
     log: function(text) {
         this.consoleService().logStringMessage(text);
@@ -107,7 +107,7 @@ bonjourfoxy.lib = {
       }
     },
     registerSelfService : function(name) {
-      var n = name || bonjourfoxy.lib.userPrefs().getCharPref("name");
+      var n = name || bonjourfoxy.lib.userPrefs().getCharPref("user.name");
       this.SelfService().getService(n).start();
       bonjourfoxy.lib.log("registeredSelfService : " + n);
       this.startSelfServer();
@@ -128,18 +128,24 @@ bonjourfoxy.lib = {
                                  "<script type='text/javascript'>\n" +
                                  "$(document).ready(function() { \n"+
                                     "$('#sendMessage').submit(function() { \n" +
-                                      "$.ajax( { type : 'POST', url : '/message', processData : false, data : JSON.stringify({ 'title' : $('#title').val(), 'message' : $('#message').val() }) }); \n" +
+                                      "$.ajax( { type : 'POST', url : '/message', processData : false, data : JSON.stringify({ 'sender' : $('#sender').val(), 'message' : $('#message').val() }) , success : function() {  $('#message').val(''); alert('Message Sent!'); } }); \n" +
                                       "return false; \n" +
                                     "}); \n" +
                                  "}); \n" +
                                  "</script>\n" +
+                                 "<style>\n" +
+                                 "form { display: inline-block; } \n" +
+                                 "input[type='text'],textarea { border: 1px solid #999; min-width: 400px; padding: 4px; margin: 4px; font-size: large; -moz-border-radius: 2px; } \n" +
+                                 "label { display: inline-block; min-width: 100px; color: #666; vertical-align: top; font-variant:small-caps; padding: 6px; } \n" +
+                                 "* { font-family: sans-serif; } \n" +
+                                 "</style>\n" +
                                  "</head>" +
                                  "<body>" +
-                                 "<h1>The Firefox of " + bonjourfoxy.lib.userPrefs().getCharPref("name") + "</h1>" +
+                                 "<h1>The Firefox of " + bonjourfoxy.lib.userPrefs().getCharPref("user.name") + "</h1>" +
                                  "<form id='sendMessage'>" +
-                                 "<div><label for='title'>Title: </label><input type='text' name='title' id='title'/></div>" +
-                                 "<div><label for='message'>Message: </label><input type='text' name='message' id='message'/></div>" +
-                                 "<div><input type='submit' value='Send'/></div>" +
+                                 "<div><label for='sender'>Your Name: </label><input type='text' name='sender' id='sender'/></div>" +
+                                 "<div><label for='message'>Message: </label><textarea name='message' id='message'></textarea></div>" +
+                                 "<div style='text-align: right;'><input type='submit' value='Send'/></div>" +
                                  "</form>" +
                                  "</body></html>";
               response.setStatusLine(request.httpVersion, 200, "OK");
@@ -163,7 +169,7 @@ bonjourfoxy.lib = {
               //Components.classes["@mozilla.org/consoleservice;1"]
               //          .getService(Components.interfaces.nsIConsoleService)
               //          .logStringMessage("MessageHandler.request.body: " + body + "\n" + readBody);
-              bonjourfoxy.lib.alert(body.title, body.message);
+              bonjourfoxy.lib.alert(body.sender, body.message);
               var responseBody = "OK";
               response.setStatusLine(request.httpVersion, 200, "OK");
               response.setHeader("Content-Type", "text/html", false);

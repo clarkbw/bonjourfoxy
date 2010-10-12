@@ -15,7 +15,7 @@ bonjourfoxy.welcome = {
         //        getEl('settingsTxtWin').style.display = "none";
         //    break;
         //}
-        getEl("bfversion").innerHTML = " " + bonjourfoxy.lib.version();
+        //getEl("bfversion").innerHTML = " " + bonjourfoxy.lib.version();
         getEl("name").value = bonjourfoxy.welcome.getName();
         getEl("btnSetName").addEventListener("click", bonjourfoxy.welcome.setName, false);
         return;
@@ -64,16 +64,14 @@ bonjourfoxy.welcome = {
     setName : function () {
       try {
         var name = bonjourfoxy.welcome.getElement("name").value;
-        bonjourfoxy.lib.log("setting name: " + name);
-        bonjourfoxy.lib.userPrefs().setCharPref("name", name);
+        bonjourfoxy.lib.userPrefs().setCharPref("user.name", name);
         bonjourfoxy.lib.resetSelfService(name);
-        bonjourfoxy.lib.log("self service reset: " + name);
       } catch (e) {
         bonjourfoxy.lib.log("error setting name: " + e);
       }
     },
     getName: function() {
-      return bonjourfoxy.lib.userPrefs().getCharPref("name");
+      return bonjourfoxy.lib.userPrefs().getCharPref("user.name");
     },
     custToolbar: function()    {
         bonjourfoxy.lib.windowMediator().getMostRecentWindow("navigator:browser").BrowserCustomizeToolbar();
