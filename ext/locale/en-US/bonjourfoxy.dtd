@@ -1,9 +1,9 @@
-<!ENTITY bonjourfoxy.label "BonjourFoxy">
+<!ENTITY bonjourfoxy.label "Bonjour Friends">
 
 <!ENTITY bonjourfoxy.toolbar.label "BonjourFoxy">
 <!ENTITY bonjourfoxy.toolbar.tooltip "Display BonjourFoxy">
 
-<!ENTITY bonjourfoxy.sidebar.label "BonjourFoxy">
+<!ENTITY bonjourfoxy.sidebar.label "Bonjour Friends">
 <!ENTITY bonjourfoxy.sidebar.open.default "Open">
 <!ENTITY bonjourfoxy.sidebar.open.tab "Open in a New Tab">
 <!ENTITY bonjourfoxy.sidebar.open.window "Open in a New Window">
