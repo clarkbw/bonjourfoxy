@@ -108,7 +108,7 @@ bonjourfoxy.lib = {
     },
     registerSelfService : function(name) {
       var n = name || bonjourfoxy.lib.userPrefs().getCharPref("user.name");
-      this.SelfService().getService(n).start(this.startSelfServer);
+      this.SelfService().getService(n).start();
       bonjourfoxy.lib.log("registeredSelfService : " + n);
     },
     unRegisterService: function() {
@@ -197,7 +197,9 @@ bonjourfoxy.lib = {
           };
 
           if (this.selfServer == null) {
-            this.selfServer = Server(8777, hostname || this.SelfService().serviceHostName);
+            this.selfServer = Server(8777, hostname || Components.classes["@mozilla.org/network/dns-service;1"]
+                                                                 .createInstance(Components.interfaces.nsIDNSService)
+                                                                 .myHostName + ".local");
           }
 
         } catch (e) {

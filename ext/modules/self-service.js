@@ -54,8 +54,6 @@ var bonjourSelfService = function bonjourSelfService(name) {
                                 .createInstance(Components.interfaces.nsIMutableArray);
   this._interfaces = ALL_INTERFACES;
 
-  this._serviceHostName = null;
-
   this._instance = null;
   this._DNSSDService = null;
   this._log = null;
@@ -77,16 +75,10 @@ bonjourSelfService.prototype =  {
   setName: function (name) {
     this._name = name;
   },
-  get serviceHostName() {
-    return this._serviceHostName;
-  },
-  set serviceHostName(hostname) {
-    this._serviceHostName = hostname;
-  },
   setPathArgs: function(pathArgs) {
     this._pathArgs = pathArgs;
   },
-  start : function (callBack) {
+  start : function () {
     try {
       if (this.instance == null) {
 
@@ -98,7 +90,7 @@ bonjourSelfService.prototype =  {
           this._mozPathArgs.appendElement(kvPair, 0);
         }
 
-        this.instance = this._register(callBack);
+        this.instance = this._register();
       }
 
     } catch (e) {
@@ -130,16 +122,15 @@ bonjourSelfService.prototype =  {
      }
      return this._DNSSDService;
   },
-  resolve: function(sName, rType, callBack) {
+  resolve: function(sName, rType) {
     this.DNSSDService.resolve(ALL_INTERFACES, sName, rType, "local.",
                               function(svc, ifIndex, err, fqdn, hostname, port, kvPairsA) {
                                 var h = hostname.replace(/\.$/, ''); // strip the trailing period
-                                gGlobalObject.serviceHostName = h;
-                                callBack(h);
+                                gGlobalObject.log("resolve call back fired hostname: " + h);
                               }
     );
   },
-  _register: function(callBack) {
+  _register: function() {
     return this.DNSSDService.register(ALL_INTERFACES, this._name, this._service,
                                       this._domain, this._host, this._port,
                                       this._mozPathArgs,
@@ -148,7 +139,6 @@ bonjourSelfService.prototype =  {
                                             gGlobalObject.log("registerService " + ["callback -", sName,
                                                                 (add ? "advertising in" : "removed from"),
                                                                 "registration domain", rDomain].join(" "));
-                                            gGlobalObject.resolve(sName, rType, callBack)
                                         } else {
                                             gGlobalObject.log("registerService call back fired - error #" + error);
                                         }
